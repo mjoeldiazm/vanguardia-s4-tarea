@@ -78,22 +78,29 @@ router.get("/api/canciones/:id", function (req, res) {
 });
 
 router.post("/api/canciones", function (req, res) {
-  const cancion1 = new Cancion({
-    _id: req.body.id,
-    nombre: req.body.nombre,
-    artista: req.body.artista,
-    album: req.body.album,
-    anio: req.body.anio,
-    pais: req.body.pais,
-  });
-  cancion1.save(function (error, cancion1) {
-    if (error) {
-      console.log(error);
-      res.status(500).send("No se ha podido agregar.");
-    } else {
-      res.status(200).json(cancion1);
-    }
-  });
+  var nuevoId;
+  const minQuery = Cancion.find({})
+    .sort({ _id: -1 })
+    .limit(1)
+    .then((canciones) => {
+      nuevoId = parseInt(canciones[0].id) + 1;
+      const cancion1 = new Cancion({
+        _id: nuevoId,
+        nombre: req.body.nombre,
+        artista: req.body.artista,
+        album: req.body.album,
+        anio: req.body.anio,
+        pais: req.body.pais,
+      });
+      cancion1.save(function (error, cancion1) {
+        if (error) {
+          console.log(error);
+          res.status(500).send("No se ha podido agregar.");
+        } else {
+          res.status(200).json(cancion1);
+        }
+      });
+    });
 });
 
 router.put("/api/canciones/:id", function (req, res) {
